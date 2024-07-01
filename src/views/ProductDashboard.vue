@@ -1,7 +1,7 @@
 <template>
-   <div>
         <div>
-                <div class="row tabla">
+            <HeaderView/>
+                <div class="row" id="tabla">
                     <div class="col m12">
                         <div class="table-title">
                             <div class="row">
@@ -92,16 +92,19 @@
                     </div>
                 </div>
         </div>
-    </div>
 </template>
 
 <script>
+import HeaderView from '../components/HeaderView.vue';
 import M from 'materialize-css';
 import axios from 'axios';
 axios.defaults.baseURL = 'https://localhost:7296/api';
 axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
 export default {
     name: "ProductDashboard",
+    components: {
+        HeaderView,
+    },
     data(){
         return{
             Listaproductos: null,
@@ -124,6 +127,7 @@ export default {
         this.obtenerProductos();
         const modalAddElement = this.$refs.modalAdd;
         const modalEditElement = this.$refs.modalEdit;
+        
         M.Modal.init(modalAddElement);
         M.Modal.init(modalEditElement);
 
@@ -157,11 +161,14 @@ export default {
             axios.post('https://localhost:7296/api/Product/Create', data)
             .then(response =>{
                 console.log(response);
+                this.obtenerProductos();
+                this.mostrarMensaje('El producto fue guardado');
+                this.cerrarModal('modalAdd');
             })
             .catch(error =>{
                 console.error(error);
             });
-            window.location.reload();
+            
         },
         obtenerId(id){
             const modalEditElement = this.$refs.modalEdit;
@@ -183,17 +190,30 @@ export default {
             axios.put(`https://localhost:7296/api/Product/Update/`+ producto.id, producto)
             .then(response =>{
                 console.log(response);
+                this.obtenerProductos();
+                this.mostrarMensaje('El producto fue editado');
+                this.cerrarModal('modalEdit');
             });
-
-            window.location.reload();
+            
         },
         eliminar(id){
             axios.delete(`https://localhost:7296/api/Product/Delete/`+ id)
             .then(response =>{
                 console.log(response);
+                this.mostrarMensaje('El producto fue eliminado');
+                this.obtenerProductos();
             });
 
-            window.location.reload();
+        },
+        mostrarMensaje(mensaje) {
+            M.toast({html: mensaje});
+        },
+        cerrarModal(modalRef) {
+            const modalElement = this.$refs[modalRef];
+            const modalInstance = M.Modal.getInstance(modalElement);
+            if (modalInstance) {
+                modalInstance.close();
+            }
         }
     }
 }
@@ -213,7 +233,7 @@ body {
     padding: 20px;	
     box-shadow: 0 1px 1px rgba(0,0,0,.05);
 }
-.tabla {
+#tabla {
     padding: 30px 150px 30px 150px;
 }
 .table-title {
@@ -272,12 +292,7 @@ table.table .form-control.error {
     border-color: #f50000;
 }
 #productos-modal{
-    height: 220px;
+    height: 240px;
 }
-
-table.table tr th{
-
-}
-
 
 </style>

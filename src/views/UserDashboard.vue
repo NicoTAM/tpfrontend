@@ -2,18 +2,16 @@
     <div>
         <HeaderView/>
 
-
     </div>
 </template>
 
 <script>
 import HeaderView from '@/components/HeaderView.vue';
 export default{
-    name: 'HomeView',
+    name: 'UserDashoard',
     components:{
         HeaderView
-    },
-
+    }
 }
 
 </script>

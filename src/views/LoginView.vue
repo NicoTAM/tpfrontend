@@ -57,6 +57,7 @@ export default {
           this.$router.push('Home');
         }})
       .catch(error => {
+        console.error('Error al iniciar sesión:', error);
         if (error.response.status === 401) {
               this.error = true;
               this.error_msg = error.response.data;

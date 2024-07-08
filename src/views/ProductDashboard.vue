@@ -7,7 +7,7 @@
                             <div class="row">
                                 <div class="col-sm-8"><h2><b>PRODUCTOS</b></h2></div>
                                 <div class="col-sm-4">
-                                    <a href="#!" @click="crearNuevo()"><i class="material-icons">add_circle</i></a>
+                                    <a href="#!" @click="openAdd()"><i class="material-icons">add_circle</i></a>
                                 </div>
                             </div>
                         </div>
@@ -29,8 +29,8 @@
                                     <td>{{productos.description}}</td>
                                     <td>{{productos.price}}</td>
                                     <td>
-                                        <a class="edit" v-on:click="obtenerId(productos.id)" title="Edit" data-toggle="tooltip"><i class="material-icons"></i></a>
-                                        <a class="delete" v-on:click="eliminar(productos.id)" title="Delete" data-toggle="tooltip"><i class="material-icons"></i></a>
+                                        <a class="edit" v-on:click="getIdProduct(productos.id)" title="Edit" data-toggle="tooltip"><i class="material-icons"></i></a>
+                                        <a class="delete" v-on:click="deleteProduct(productos.id)" title="Delete" data-toggle="tooltip"><i class="material-icons"></i></a>
                                     </td>
                                 </tr>
                                     
@@ -59,7 +59,7 @@
                             </div>
                             <div class="row">
                                 <div class="col m12">
-                                    <button class="btn teal" @click="guardar()">AGREGAR</button>
+                                    <button class="btn teal" @click="addProduct()">AGREGAR</button>
                                 </div>
                             </div>
                         </div>
@@ -85,7 +85,7 @@
                             </div>
                             <div class="row" >
                                 <div class="col m12">
-                                    <button class="btn teal" @click="editar(form)">EDITAR</button>
+                                    <button class="btn teal" @click="editProduct(form)">EDITAR</button>
                                 </div>
                             </div>
                         </div>
@@ -124,7 +124,7 @@ export default {
     },
     
     mounted:function(){
-        this.obtenerProductos();
+        this.getAllProduct();
         const modalAddElement = this.$refs.modalAdd;
         const modalEditElement = this.$refs.modalEdit;
         
@@ -133,7 +133,7 @@ export default {
 
     },
     methods:{
-        obtenerProductos(){
+        getAllProduct(){
             let direccion = "https://localhost:7296/api/Product/GetAll"
             axios.get(direccion).then(data =>{
                 this.Listaproductos = data.data;
@@ -142,7 +142,7 @@ export default {
                 console.error(error);
             })
         },
-        crearNuevo(){
+        openAdd(){
             const modalAddElement = this.$refs.modalAdd;
             const modalInstance = M.Modal.getInstance(modalAddElement);
             if (modalInstance) {
@@ -152,7 +152,7 @@ export default {
             }
             
         },
-        guardar(){
+        addProduct(){
             var data= {
                 "name": this.name,
                 "description": this.description,
@@ -161,16 +161,16 @@ export default {
             axios.post('https://localhost:7296/api/Product/Create', data)
             .then(response =>{
                 console.log(response);
-                this.obtenerProductos();
+                this.getAllProduct();
                 this.mostrarMensaje('El producto fue guardado');
-                this.cerrarModal('modalAdd');
+                this.closeModal('modalAdd');
             })
             .catch(error =>{
                 console.error(error);
             });
             
         },
-        obtenerId(id){
+        getIdProduct(id){
             const modalEditElement = this.$refs.modalEdit;
             const modalInstance = M.Modal.getInstance(modalEditElement);
             if (modalInstance) {
@@ -186,29 +186,29 @@ export default {
                 console.error(error);
             });
         },
-        editar(producto){
+        editProduct(producto){
             axios.put(`https://localhost:7296/api/Product/Update/`+ producto.id, producto)
             .then(response =>{
                 console.log(response);
-                this.obtenerProductos();
+                this.getAllProduct();
                 this.mostrarMensaje('El producto fue editado');
-                this.cerrarModal('modalEdit');
+                this.closeModal('modalEdit');
             });
             
         },
-        eliminar(id){
+        deleteProduct(id){
             axios.delete(`https://localhost:7296/api/Product/Delete/`+ id)
             .then(response =>{
                 console.log(response);
                 this.mostrarMensaje('El producto fue eliminado');
-                this.obtenerProductos();
+                this.getAllProduct();
             });
 
         },
         mostrarMensaje(mensaje) {
             M.toast({html: mensaje});
         },
-        cerrarModal(modalRef) {
+        closeModal(modalRef) {
             const modalElement = this.$refs[modalRef];
             const modalInstance = M.Modal.getInstance(modalElement);
             if (modalInstance) {

@@ -20,6 +20,7 @@ export default{
     methods: {
         hasPrivilege
     }
+    
 }
 
 </script>
@@ -27,6 +28,8 @@ export default{
 nav{
     height: 100px;
     padding: 20px;
+    background-color: grey !important;
 }
+
 
 </style>

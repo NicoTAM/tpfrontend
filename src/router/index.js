@@ -4,7 +4,7 @@ import LoginView from '../views/LoginView.vue'
 import HomeView from '../views/HomeView.vue'
 import UserDashboard from '@/views/UserDashboard.vue'
 import ProductDashboard from '../views/ProductDashboard.vue'
-import { hasPrivilege} from '@/auth';
+import { hasPrivilege, isTokenExpired} from '@/auth';
 
 Vue.use(VueRouter)
 
@@ -43,12 +43,16 @@ const router = new VueRouter({
 router.beforeEach((to, from, next) => {
   const { requiredPrivileges } = to.meta;
 
+  if (to.path !== '/' && isTokenExpired()) {
+    alert('Tu sesión ha expirado, por favor inicia sesión de nuevo.');
+    return next('/');
+}
+
   if (requiredPrivileges && !hasPrivilege(requiredPrivileges)) {
-      // Redirige o muestra un mensaje de error si no tiene los privilegios necesarios
       alert('No tienes permiso para acceder a esta página.');
       return history();
   }
   next();
 });
 
-export default router
+export default router;

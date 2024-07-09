@@ -149,7 +149,6 @@ export default{
             let direccion = "https://localhost:7296/api/User/GetAllUsers"
             axios.get(direccion).then(data =>{
                 this.listUsers = data.data;
-                console.log(this.listUsers);
             })
             .catch(error =>{
                 console.error(error);

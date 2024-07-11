@@ -8,6 +8,7 @@
                                 <div class="col-sm-8"><h2><b>USUARIOS</b></h2></div>
                                 <div class="col-sm-4">
                                     <a href="#!" @click="openAdd()"><i class="material-icons">person_add</i></a>
+                                    <a href="#!" @click="openAdd()"><i class="material-icons">person_add</i></a>
                                 </div>
                             </div>
                         </div>
@@ -20,6 +21,11 @@
                                     <th style="width: 100px;">Rol</th>
                                     <th style="width: 50px;">Acción</th>
                                     <th>Privilegio</th>
+                                    <th style="width: 30px;">ID</th>
+                                    <th style="width: 100px;">Usuario</th>
+                                    <th style="width: 100px;">Rol</th>
+                                    <th style="width: 50px;">Acción</th>
+                                    <th>Privilegio</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -27,12 +33,14 @@
                                     <th scope="row">{{users.id}}</th>
                                     <td>{{users.username}}</td>
                                     <td>{{users.privileges[0]}}</td>
+                                    <td>{{users.privileges[0]}}</td>
                                     <td>
                                         <a class="edit" v-on:click="obtenerId()" title="Edit" data-toggle="tooltip"><i class="material-icons"></i></a>
                                         <a class="delete" v-on:click="eliminar()" title="Delete" data-toggle="tooltip"><i class="material-icons"></i></a>
                                     </td>
                                     <td>
                                         <a class="privilege" v-on:click="getPrivilege()" title="Privilege" data-toggle="tooltip"><i class="material-icons">person</i></a>
+                                        <a class="privilege" v-on:click="openPrivilege(users.id)" title="Privilege" data-toggle="tooltip"><i class="material-icons">person</i></a>
                                     </td>
                                 </tr>
                                     
@@ -66,7 +74,7 @@
                         <div class="modal-content">
                             <div class="row">    
                                 <div class="col m3">
-                                    <label>Nombre</label>
+                                    <label>Usuario</label>
                                     <input type="text"  >
                                     <span class="helper-text"></span>
                                 </div>
@@ -112,6 +120,30 @@
                             </div>
                         </div>
                     </div>
+                    <div class="modal" id="privilege-modal" ref="modalPrivilege">
+                        <div class="modal-content">
+                            <div class="row">    
+                                <div class="col m3">
+                                    <label>Usuario</label>
+                                    <input type="text" v-model="form.username" disabled>
+                                    <span class="helper-text"></span>
+                                </div>
+                                <div class="col m3">
+                                    <label>Privilegio</label>
+                                    <select v-model="selectedPrivilegeId" ref="selectPrivilege">
+                                        <option v-for="privilege in privileges" :key="privilege.id" :value="privilege.id">
+                                         {{ privilege.description }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="row" >
+                                <div class="col m12">
+                                    <button class="btn teal" @click="putPrivilege(users.id)">AGREGAR PRIVILEGIO</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
         </div>
 </template>
@@ -131,6 +163,13 @@ export default{
             username: '',
             password: '',
             privileges: []
+            privileges: [],
+            selectedPrivilegeId: null,
+            selectedUserId: null,
+            form:{
+                "id": '',
+                "username": ''
+            }
         }
     },
     mounted:function(){
@@ -138,9 +177,11 @@ export default{
         const modalAddElement = this.$refs.modalAdd;
         const modalEditElement = this.$refs.modalEdit;
         const modalPrivilegeElement = this.$refs.modalPrivilege;
+        const modalPrivilegeElement = this.$refs.modalPrivilege;
         
         M.Modal.init(modalAddElement);
         M.Modal.init(modalEditElement);
+        M.Modal.init(modalPrivilegeElement);
         M.Modal.init(modalPrivilegeElement);
 
     },
@@ -149,7 +190,6 @@ export default{
             let direccion = "https://localhost:7296/api/User/GetAllUsers"
             axios.get(direccion).then(data =>{
                 this.listUsers = data.data;
-                console.log(this.listUsers);
             })
             .catch(error =>{
                 console.error(error);
@@ -218,6 +258,55 @@ export default{
                 this.getAllUsers();
             })
         },
+        getIdUser(id){
+            axios.get(`https://localhost:7296/api/User/GetUserById/`+ id)
+            .then(response => {
+                console.log(response);
+                this.form = response.data;
+            })
+            .catch(error =>{
+                console.error(error);
+            });
+        },
+        getAllPrivileges() {
+            axios.get('https://localhost:7296/api/User/GetAllPrivileges')
+                .then(response => {
+                    this.privileges = response.data;
+                    this.$nextTick(() => {
+                        M.FormSelect.init(this.$refs.selectPrivilege);
+                    });
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        },
+        openPrivilege(userId){
+            this.selectedUserId = userId;
+            const modalPrivilegeElement = this.$refs.modalPrivilege;
+            const modalInstance = M.Modal.getInstance(modalPrivilegeElement);
+            if (modalInstance) {
+             modalInstance.open();
+            } else {
+            console.error('El modal no está disponible.');
+            }
+            this.getAllPrivileges();
+            this.form = this.getIdUser(userId);
+
+        },
+        putPrivilege(){
+            var data ={
+                'userId': this.selectedUserId,
+                'privilegeId': this.selectedPrivilegeId
+            }
+            axios.post(`https://localhost:7296/api/User/AddPrivilege`,data )
+            .then(response =>{
+                console.log(response);
+                this.getAllUsers();
+            })
+            .catch(error => {
+                console.error(error);
+            });
+        },
         mostrarMensaje(mensaje) {
             M.toast({html: mensaje});
         },
@@ -249,6 +338,7 @@ body {
     box-shadow: 0 1px 1px rgba(0,0,0,.05);
 }
 #tabla {
+    padding: 30px 200px 30px 200px;
     padding: 30px 200px 30px 200px;
 }
 .table-title {
@@ -306,18 +396,20 @@ table.table .form-control {
 table.table .form-control.error {
     border-color: #f50000;
 }
-#productos-modal{
+#productos-modal, #privilege-modal{
     height: 240px;
 }
 .radio-buttons-container {
     display: flex;
     align-items: center;
     gap: 2px;
+    gap: 2px;
 }
 
 .radio-buttons-container label {
     display: flex;
     align-items: center;
+    margin-left: 0;
     margin-left: 0;
 }
 

@@ -1,22 +1,23 @@
 import axios from './axios';
-import {jwtDecode} from 'jwt-decode';
+import { jwtDecode } from 'jwt-decode';
 
 export function isTokenExpired() {
     const token = localStorage.getItem('token');
-    console.log('Token:', token);  
+    console.log('Token:', token);
     if (token) {
         try {
             const decoded = jwtDecode(token);
-            const currentTime = Math.floor(Date.now() / 1000);
-            console.log(decoded.exp);
-            console.log(currentTime);
-            return decoded.exp < currentTime;
+            const expirationDate = new Date(decoded.exp * 1000);
+            const currentDate = new Date();
+            // console.log('Token Expiration Date:', expirationDate);
+            // console.log('Current Date:', currentDate);
+            return expirationDate < currentDate;
         } catch (error) {
             console.error('Error al decodificar el token:', error);
             return true;
         }
     }
-    return true; 
+    return true;
 }
 
 export async function getNewToken() {
@@ -44,7 +45,7 @@ export function getUserPrivileges() {
     const token = localStorage.getItem('token');
     if (token) {
         const decoded = jwtDecode(token);
-        return decoded.Privilege || ''; 
+        return decoded.Privilege || '';
     }
     return '';
 }

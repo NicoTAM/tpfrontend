@@ -7,8 +7,7 @@
                             <div class="row">
                                 <div class="col-sm-8"><h2><b>USUARIOS</b></h2></div>
                                 <div class="col-sm-4">
-                                    <a href="#!" @click="openAdd()"><i class="material-icons">person_add</i></a>
-                                    <a href="#!" @click="openAdd()"><i class="material-icons">person_add</i></a>
+                                    <a href="#!" @click="openAdd()"><i class="material-icons">add_circle</i></a>
                                 </div>
                             </div>
                         </div>
@@ -21,45 +20,43 @@
                                     <th style="width: 100px;">Rol</th>
                                     <th style="width: 50px;">Acción</th>
                                     <th>Privilegio</th>
-                                    <th style="width: 30px;">ID</th>
-                                    <th style="width: 100px;">Usuario</th>
-                                    <th style="width: 100px;">Rol</th>
-                                    <th style="width: 50px;">Acción</th>
-                                    <th>Privilegio</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <tr v-for="users in listUsers" :key="users.id">
                                     <th scope="row">{{users.id}}</th>
                                     <td>{{users.username}}</td>
-                                    <td>{{users.privileges[0]}}</td>
-                                    <td>{{users.privileges[0]}}</td>
                                     <td>
-                                        <a class="edit" v-on:click="obtenerId()" title="Edit" data-toggle="tooltip"><i class="material-icons"></i></a>
-                                        <a class="delete" v-on:click="eliminar()" title="Delete" data-toggle="tooltip"><i class="material-icons"></i></a>
+                                        <ul>
+                                            <li v-for="privilege in users.privileges" :key="privilege">
+                                            {{ privilege }}
+                                            </li>
+                                        </ul>
                                     </td>
                                     <td>
-                                        <a class="privilege" v-on:click="getPrivilege()" title="Privilege" data-toggle="tooltip"><i class="material-icons">person</i></a>
-                                        <a class="privilege" v-on:click="openPrivilege(users.id)" title="Privilege" data-toggle="tooltip"><i class="material-icons">person</i></a>
+                                        <a class="edit" v-on:click="openEdit(users.id)" title="Edit" data-toggle="tooltip"><i class="material-icons"></i></a>
+                                        <a class="delete" v-on:click="openConfirmDelte(users.id)" title="Delete" data-toggle="tooltip"><i class="material-icons"></i></a>
+                                    </td>
+                                    <td>
+                                        <a class="addPrivilege" v-on:click="openAddPrivilege(users.id)" title="Add_Privilege" data-toggle="tooltip"><i class="material-icons">person_add</i></a>
+                                        <a class="deletePrivilege" v-on:click="openDeletePrivilege(users.id)" title="Delete_Privilege" data-toggle="tooltip"><i class="material-icons">removeperson</i></a>
                                     </td>
                                 </tr>
-                                    
                             </tbody>
-
                         </table>
                     </div>
                     </div>
-                    <div class="modal" id="productos-modal" ref="modalAdd">
+                    <div class="modal" id="user-modal" ref="modalAdd">
                         <div class="modal-content">
                             <div class="row">    
                                 <div class="col m3">
                                     <label>Usuario</label>
-                                    <input type="text" v-model="username">
+                                    <input type="text" v-model="user">
                                     <span class="helper-text"></span>
                                 </div>
                                 <div class="col m3">
                                     <label>Contraseña</label>
-                                    <input type="password" v-model="password">
+                                    <input type="password" v-model="pass">
                                     <span class="helper-text"></span>
                                 </div>
                             </div>
@@ -70,52 +67,28 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal" id="productos-modal" ref="modalEdit">
+                    <div class="modal" id="user-modal" ref="modalEdit">
                         <div class="modal-content">
                             <div class="row">    
                                 <div class="col m3">
                                     <label>Usuario</label>
-                                    <input type="text"  >
+                                    <input type="text" v-model="form.username" disabled>
                                     <span class="helper-text"></span>
                                 </div>
                                 <div class="col m3">
-                                    <label>Descripción</label>
-                                    <input type="text"  >
+                                    <label>Contraseña actual</label>
+                                    <input type="text" v-model="oldpass">
                                     <span class="helper-text"></span>
                                 </div>
                                 <div class="col m3">
-                                    <label>Precio</label>
-                                    <input type="text"  >
+                                    <label>Contraseña nueva</label>
+                                    <input type="text" v-model="newpass">
                                     <span class="helper-text"></span>
                                 </div>
                             </div>
                             <div class="row" >
                                 <div class="col m12">
-                                    <button class="btn teal" @click="editar(form)">EDITAR</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="modal" id="privilege-modal" ref="modalPrivilege">
-                        <div class="modal-content">
-                            <div class="row">    
-                                <div class="col m3">
-                                    <label>Usuario</label>
-                                    <input type="text"  >
-                                    <span class="helper-text"></span>
-                                </div>
-                                <div class="col m3">
-                                    <label>Privilegio</label>
-                                    <select>
-                                        <option v-for="privilege in privileges" :key="privilege.id" :value="privilege.id">
-                                         {{ privilege.description }}
-                                        </option>
-                                    </select>
-                                </div>
-                            </div>
-                            <div class="row" >
-                                <div class="col m12">
-                                    <button class="btn teal" @click="editar()">AGREGAR PRIVILEGIO</button>
+                                    <button class="btn teal" @click="changePass()">EDITAR</button>
                                 </div>
                             </div>
                         </div>
@@ -126,7 +99,6 @@
                                 <div class="col m3">
                                     <label>Usuario</label>
                                     <input type="text" v-model="form.username" disabled>
-                                    <span class="helper-text"></span>
                                 </div>
                                 <div class="col m3">
                                     <label>Privilegio</label>
@@ -139,11 +111,55 @@
                             </div>
                             <div class="row" >
                                 <div class="col m12">
-                                    <button class="btn teal" @click="putPrivilege(users.id)">AGREGAR PRIVILEGIO</button>
+                                    <button class="btn teal" @click="putPrivilege()">AGREGAR PRIVILEGIO</button>
                                 </div>
                             </div>
                         </div>
                     </div>
+                    <div class="modal" id="privilege-modal" ref="modalDeletePrivilege">
+                        <div class="modal-content">
+                            <div class="row">
+                                <table class="table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Privilegio</th>
+                                            <th>Seleccionar</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr v-for="privilege in form.privileges" :key="privilege">
+                                            <td>{{ privilege}}</td>
+                                            <td> 
+                                                <label>
+                                                    <input type="checkbox"/>
+                                                </label>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+
+                                </table>
+                                <div class="row" >
+                            <div class="col m12">
+                                <button class="btn teal" @click="deletePrivilege()">ELIMINAR</button>
+                                <button class="btn teal" @click="closeModal('modalDeletePrivilege')">CANCELAR</button>
+                            </div>
+                        </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal" id="confirm-modal" ref="modalConfirm">
+                        <div class="modal-content">
+                            <h4>Confirmación</h4>
+                            <p>¿Estás seguro de que deseas eliminar este usuario?</p>
+                        </div>
+                        <div class="row" >
+                            <div class="col m12">
+                                <button class="btn teal" @click="deleteUser()">ELIMINAR</button>
+                                <button class="btn teal" @click="closeModal('modalConfirm')">CANCELAR</button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
         </div>
 </template>
@@ -160,15 +176,18 @@ export default{
     data(){
         return{
             listUsers: null,
-            username: '',
-            password: '',
-            privileges: []
+            user: '',
+            pass: '',
+            oldpass: '',
+            newpass: '',
             privileges: [],
             selectedPrivilegeId: null,
             selectedUserId: null,
+            userIdToDelete: null,
             form:{
                 "id": '',
-                "username": ''
+                "username": '',
+                "privileges":[]
             }
         }
     },
@@ -177,18 +196,19 @@ export default{
         const modalAddElement = this.$refs.modalAdd;
         const modalEditElement = this.$refs.modalEdit;
         const modalPrivilegeElement = this.$refs.modalPrivilege;
-        const modalPrivilegeElement = this.$refs.modalPrivilege;
+        const modalDeletePrivilegeElement = this.$refs.modalConfirm;
+        const modalConfirmElement = this.$refs.modalDeletePrivilege;
         
         M.Modal.init(modalAddElement);
         M.Modal.init(modalEditElement);
         M.Modal.init(modalPrivilegeElement);
-        M.Modal.init(modalPrivilegeElement);
+        M.Modal.init(modalDeletePrivilegeElement);
+        M.Modal.init(modalConfirmElement);
 
     },
         methods:{
         getAllUsers(){
-            let direccion = "https://localhost:7296/api/User/GetAllUsers"
-            axios.get(direccion).then(data =>{
+            axios.get('/User/GetAllUsers').then(data =>{
                 this.listUsers = data.data;
             })
             .catch(error =>{
@@ -206,10 +226,10 @@ export default{
         },
         addUser(){
             var data= {
-                "username": this.username,
-                "password": this.password,
+                "username": this.user,
+                "password": this.pass,
             };
-            axios.post('https://localhost:7296/api/User/CreateUser', data)
+            axios.post('/User/CreateUser', data)
             .then(response =>{
                 console.log(response);
                 this.getAllUsers();
@@ -221,7 +241,7 @@ export default{
             });
         },
         getIdUser(id){
-            axios.get(`https://localhost:7296/api/User/GetUserById/`+ id)
+            axios.get('/User/GetUserById/'+ id)
             .then(response => {
                 console.log(response);
                 this.form = response.data;
@@ -230,46 +250,57 @@ export default{
                 console.error(error);
             });
         },
-        getPrivilege(){
-            const modalPrivilegeElement = this.$refs.modalPrivilege;
-            const modalInstance = M.Modal.getInstance(modalPrivilegeElement);
+        openEdit(userId){
+            this.selectedUserId = userId;
+            const modalEditElement = this.$refs.modalEdit;
+            const modalInstance = M.Modal.getInstance(modalEditElement);
             if (modalInstance) {
              modalInstance.open();
             } else {
             console.error('El modal no está disponible.');
             }
-            axios.get('https://localhost:7296/api/User/GetAllPrivileges')
-            .then(response =>{
-                console.log(response);
-                this.privileges = response.data;
-                console.log(this.privileges);
-            })
-
+            this.getIdUser(userId);
         },
-        putPrivilege(event, id){
-            const privilege = event.target.value;
+        changePass(){
             var data ={
-                'userId': id,
-                'privilegeId': privilege
+                "oldPassword": this.oldpass,
+                "newPassword": this.newpass
             }
-            axios.post(`https://localhost:7296/api/User/AddPrivilege`,data )
+            axios.put(`/User/ChangePassword/`+ this.selectedUserId, data)
             .then(response =>{
                 console.log(response);
                 this.getAllUsers();
+                this.mostrarMensaje('La contraseña fue editada');
+                this.closeModal('modalEdit');
+                this.oldpass = '';
+                this.newpass = '';
+            })
+            .catch(error=>{
+                console.error(error);
             })
         },
-        getIdUser(id){
-            axios.get(`https://localhost:7296/api/User/GetUserById/`+ id)
-            .then(response => {
+        openConfirmDelte(id) {
+            this.userIdToDelete = id;
+            const modalConfirmElement = this.$refs.modalConfirm;
+            const modalInstance = M.Modal.getInstance(modalConfirmElement);
+            if (modalInstance) {
+                modalInstance.open();
+            } else {
+                console.error('El modal de confirmación no está disponible.');
+            }
+        },
+        deleteUser(){
+            axios.delete('/User/DeleteUser/'+ this.userIdToDelete)
+            .then(response =>{
                 console.log(response);
-                this.form = response.data;
-            })
-            .catch(error =>{
-                console.error(error);
+                this.getAllUsers();
+                this.closeModal('modalConfirm');
+                this.mostrarMensaje('El Usuario fue eliminado');
             });
+
         },
         getAllPrivileges() {
-            axios.get('https://localhost:7296/api/User/GetAllPrivileges')
+            axios.get('/User/GetAllPrivileges')
                 .then(response => {
                     this.privileges = response.data;
                     this.$nextTick(() => {
@@ -280,7 +311,7 @@ export default{
                     console.error(error);
                 });
         },
-        openPrivilege(userId){
+        openAddPrivilege(userId){
             this.selectedUserId = userId;
             const modalPrivilegeElement = this.$refs.modalPrivilege;
             const modalInstance = M.Modal.getInstance(modalPrivilegeElement);
@@ -290,7 +321,7 @@ export default{
             console.error('El modal no está disponible.');
             }
             this.getAllPrivileges();
-            this.form = this.getIdUser(userId);
+            this.getIdUser(userId);
 
         },
         putPrivilege(){
@@ -298,14 +329,27 @@ export default{
                 'userId': this.selectedUserId,
                 'privilegeId': this.selectedPrivilegeId
             }
-            axios.post(`https://localhost:7296/api/User/AddPrivilege`,data )
+            axios.post(`/User/AddPrivilege`,data )
             .then(response =>{
                 console.log(response);
                 this.getAllUsers();
+                this.closeModal('modalPrivilege');
             })
             .catch(error => {
                 console.error(error);
             });
+        },
+        openDeletePrivilege(userId){
+            const modalDeletePrivilegeElement = this.$refs.modalDeletePrivilege;
+            const modalInstance = M.Modal.getInstance(modalDeletePrivilegeElement);
+            if (modalInstance) {
+             modalInstance.open();
+            } else {
+            console.error('El modal no está disponible.');
+            }
+            this.getAllPrivileges();
+            this.getIdUser(userId);
+
         },
         mostrarMensaje(mensaje) {
             M.toast({html: mensaje});
@@ -383,6 +427,12 @@ table.table td a.edit {
 table.table td a.delete {
     color: #E34724;
 }
+table.table td a.addPrivilege {
+    color: #0fbb43;
+}
+table.table td a.deletePrivilege {
+    color: #E34724;
+}
 table.table td i {
     font-size: 19px;
 }
@@ -396,21 +446,18 @@ table.table .form-control {
 table.table .form-control.error {
     border-color: #f50000;
 }
-#productos-modal, #privilege-modal{
+#user-modal, #privilege-modal{
     height: 240px;
 }
-.radio-buttons-container {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-    gap: 2px;
+#privilege-modal button{
+    margin-left:20px;
 }
-
-.radio-buttons-container label {
-    display: flex;
-    align-items: center;
-    margin-left: 0;
-    margin-left: 0;
+#confirm-modal{
+    height: 200px;
+    width: 450px;
+}
+#confirm-modal, #user-modal button{
+    margin-left:20px; 
 }
 
 </style>

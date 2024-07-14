@@ -4,7 +4,8 @@ import LoginView from '../views/LoginView.vue'
 import HomeView from '../views/HomeView.vue'
 import UserDashboard from '@/views/UserDashboard.vue'
 import ProductDashboard from '../views/ProductDashboard.vue'
-import { hasPrivilege, isTokenExpired} from '@/auth';
+import {isTokenExpired} from '@/auth';
+/*import { hasPrivilege, isTokenExpired} from '@/auth';*/
 
 Vue.use(VueRouter)
 
@@ -23,7 +24,7 @@ const routes = [
     path: '/User',
     name: 'UserDashboard',
     component: UserDashboard,
-    meta: { requiredPrivileges: ['Administrator'] }
+    /*meta: { requiredPrivileges: ['Administrator', 'ProductAdministrator'] }*/
   },
   {
     path: '/Product',
@@ -41,17 +42,17 @@ const router = new VueRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const { requiredPrivileges } = to.meta;
+ /* const { requiredPrivileges } = to.meta;*/
 
   if (to.path !== '/' && isTokenExpired()) {
     alert('Tu sesión ha expirado, por favor inicia sesión de nuevo.');
     return next('/');
 }
 
-  if (requiredPrivileges && !hasPrivilege(requiredPrivileges)) {
+  /*if (requiredPrivileges && !hasPrivilege(requiredPrivileges)) {
       alert('No tienes permiso para acceder a esta página.');
       return history();
-  }
+  }*/
   next();
 });
 

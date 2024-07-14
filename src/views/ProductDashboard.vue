@@ -30,7 +30,7 @@
                                     <td>{{productos.price}}</td>
                                     <td>
                                         <a class="edit" v-on:click="getIdProduct(productos.id)" title="Edit" data-toggle="tooltip"><i class="material-icons"></i></a>
-                                        <a class="delete" v-on:click="deleteProduct(productos.id)" title="Delete" data-toggle="tooltip"><i class="material-icons"></i></a>
+                                        <a class="delete" v-on:click="openConfirmDelte(productos.id)" title="Delete" data-toggle="tooltip"><i class="material-icons"></i></a>
                                     </td>
                                 </tr>
                                     
@@ -90,6 +90,18 @@
                             </div>
                         </div>
                     </div>
+                    <div class="modal" id="confirm-modal" ref="modalConfirm">
+                        <div class="modal-content">
+                            <h4>Confirmación</h4>
+                            <p>¿Estás seguro de que deseas eliminar este producto?</p>
+                        </div>
+                        <div class="row" >
+                            <div class="col m12">
+                                <button class="btn teal" @click="deleteProduct()">ELIMINAR</button>
+                                <button class="btn teal" @click="closeModal('modalConfirm')">CANCELAR</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
         </div>
 </template>
@@ -98,8 +110,6 @@
 import HeaderView from '../components/HeaderView.vue';
 import M from 'materialize-css';
 import axios from 'axios';
-axios.defaults.baseURL = 'https://localhost:7296/api';
-axios.defaults.headers.common['Authorization'] = `Bearer ${localStorage.getItem('token')}`;
 export default {
     name: "ProductDashboard",
     components: {
@@ -108,6 +118,7 @@ export default {
     data(){
         return{
             Listaproductos: null,
+            productIdToDelete: null,
             form:{
                 "id": '',
                 "name": '',
@@ -117,7 +128,6 @@ export default {
             name: '',
             description: '',
             price: '',
-            modales: [],
 
             errorMessages: []
         }
@@ -127,15 +137,16 @@ export default {
         this.getAllProduct();
         const modalAddElement = this.$refs.modalAdd;
         const modalEditElement = this.$refs.modalEdit;
+        const modalConfirmElement = this.$refs.modalConfirm;
         
         M.Modal.init(modalAddElement);
         M.Modal.init(modalEditElement);
+        M.Modal.init(modalConfirmElement);
 
     },
     methods:{
         getAllProduct(){
-            let direccion = "https://localhost:7296/api/Product/GetAll"
-            axios.get(direccion).then(data =>{
+            axios.get('/Product/GetAll').then(data =>{
                 this.Listaproductos = data.data;
             })
             .catch(error =>{
@@ -158,7 +169,7 @@ export default {
                 "description": this.description,
                 "price": Number(this.price),
             };
-            axios.post('https://localhost:7296/api/Product/Create', data)
+            axios.post('/Product/Create', data)
             .then(response =>{
                 console.log(response);
                 this.getAllProduct();
@@ -178,7 +189,7 @@ export default {
             } else {
             console.error('El modal no está disponible.');
             }
-            axios.get(`https://localhost:7296/api/Product/GetById/`+ id)
+            axios.get(`/Product/GetById/`+ id)
             .then(response => {
                 this.form = response.data;
             })
@@ -187,22 +198,39 @@ export default {
             });
         },
         editProduct(producto){
-            axios.put(`https://localhost:7296/api/Product/Update/`+ producto.id, producto)
+            axios.put(`/Product/Update/`+ producto.id, producto)
             .then(response =>{
                 console.log(response);
                 this.getAllProduct();
                 this.mostrarMensaje('El producto fue editado');
                 this.closeModal('modalEdit');
-            });
+            })
+            .catch(error=>{
+                console.error(error);
+            })
             
         },
-        deleteProduct(id){
-            axios.delete(`https://localhost:7296/api/Product/Delete/`+ id)
+        openConfirmDelte(id) {
+            this.productIdToDelete = id;
+            const modalConfirmElement = this.$refs.modalConfirm;
+            const modalInstance = M.Modal.getInstance(modalConfirmElement);
+            if (modalInstance) {
+                modalInstance.open();
+            } else {
+                console.error('El modal de confirmación no está disponible.');
+            }
+        },
+        deleteProduct(){
+            axios.delete(`/Product/Delete/`+ this.productIdToDelete)
             .then(response =>{
                 console.log(response);
-                this.mostrarMensaje('El producto fue eliminado');
                 this.getAllProduct();
-            });
+                this.closeModal('modalConfirm');
+                this.mostrarMensaje('El producto fue eliminado');
+            })
+            .catch(error=>{
+                console.error(error);
+            })
 
         },
         mostrarMensaje(mensaje) {
@@ -293,6 +321,13 @@ table.table .form-control.error {
 }
 #productos-modal{
     height: 240px;
+}
+#confirm-modal{
+    height: 200px;
+    width: 450px;
+}
+#confirm-modal button{
+    margin-left:20px; 
 }
 
 </style>

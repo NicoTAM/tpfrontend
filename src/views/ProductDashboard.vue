@@ -53,13 +53,14 @@
                                 </div>
                                 <div class="col m3">
                                     <label>Precio</label>
-                                    <input type="text"  v-model="price">
+                                    <input type="number"  v-model="price">
                                     <span class="helper-text"></span>
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col m12">
                                     <button class="btn teal" @click="addProduct()">AGREGAR</button>
+                                    <button class="btn teal" @click="closeModal('modalAdd')">CANCELAR</button>
                                 </div>
                             </div>
                         </div>
@@ -79,13 +80,14 @@
                                 </div>
                                 <div class="col m3">
                                     <label>Precio</label>
-                                    <input type="text"  v-model="form.price">
+                                    <input type="number"  v-model="form.price">
                                     <span class="helper-text"></span>
                                 </div>
                             </div>
                             <div class="row" >
                                 <div class="col m12">
                                     <button class="btn teal" @click="editProduct(form)">EDITAR</button>
+                                    <button class="btn teal" @click="closeModal('modalEdit')">CANCELAR</button>
                                 </div>
                             </div>
                         </div>
@@ -94,11 +96,11 @@
                         <div class="modal-content">
                             <h4>Confirmación</h4>
                             <p>¿Estás seguro de que deseas eliminar este producto?</p>
-                        </div>
-                        <div class="row" >
-                            <div class="col m12">
-                                <button class="btn teal" @click="deleteProduct()">ELIMINAR</button>
-                                <button class="btn teal" @click="closeModal('modalConfirm')">CANCELAR</button>
+                            <div class="row" >
+                                <div class="col m12">
+                                    <button class="btn teal" @click="deleteProduct()">ELIMINAR</button>
+                                    <button class="btn teal" @click="closeModal('modalConfirm')">CANCELAR</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -319,14 +321,22 @@ table.table .form-control {
 table.table .form-control.error {
     border-color: #f50000;
 }
+.modal-content{
+    height: 100%;
+}
 #productos-modal{
     height: 240px;
 }
+#productos-modal button{
+    margin-top: 20px;
+    margin-left:20px;
+}
 #confirm-modal{
-    height: 200px;
+    height: 250px;
     width: 450px;
 }
 #confirm-modal button{
+    margin-top: 50px;
     margin-left:20px; 
 }
 

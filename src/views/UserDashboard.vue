@@ -63,6 +63,7 @@
                             <div class="row">
                                 <div class="col m12">
                                     <button class="btn teal" @click="addUser()">AGREGAR</button>
+                                    <button class="btn teal" @click="closeModal('modalAdd')">CANCELAR</button>
                                 </div>
                             </div>
                         </div>
@@ -89,6 +90,7 @@
                             <div class="row" >
                                 <div class="col m12">
                                     <button class="btn teal" @click="changePass()">EDITAR</button>
+                                    <button class="btn teal" @click="closeModal('modalEdit')">CANCELAR</button>
                                 </div>
                             </div>
                         </div>
@@ -112,6 +114,7 @@
                             <div class="row" >
                                 <div class="col m12">
                                     <button class="btn teal" @click="putPrivilege()">AGREGAR PRIVILEGIO</button>
+                                    <button class="btn teal" @click="closeModal('modalPrivilege')">CANCELAR</button>
                                 </div>
                             </div>
                         </div>

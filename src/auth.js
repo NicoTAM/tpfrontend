@@ -3,7 +3,7 @@ import { jwtDecode } from 'jwt-decode';
 
 export function isTokenExpired() {
     const token = localStorage.getItem('token');
-    console.log('Token:', token);
+    /*console.log('Token:', token);*/
     if (token) {
         try {
             const decoded = jwtDecode(token);
@@ -41,18 +41,20 @@ export async function getNewToken() {
     }
 }
 
+
 export function getUserPrivileges() {
     const token = localStorage.getItem('token');
     if (token) {
         const decoded = jwtDecode(token);
-        return decoded.Privilege || '';
+        return Array.isArray(decoded.Privilege) ? decoded.Privilege : [decoded.Privilege];
+        
     }
     return '';
 }
 
 export function hasPrivilege(requiredPrivileges) {
     const userPrivilege = getUserPrivileges();
-    return requiredPrivileges.includes(userPrivilege);
+    return requiredPrivileges.some(privilege => userPrivilege.includes(privilege));
 }
 
 

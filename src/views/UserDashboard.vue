@@ -35,11 +35,11 @@
                                     </td>
                                     <td>
                                         <a class="edit" v-on:click="openEdit(users.id)" title="Edit" data-toggle="tooltip"><i class="material-icons"></i></a>
-                                        <a class="delete" v-on:click="openConfirmDelte(users.id)" title="Delete" data-toggle="tooltip"><i class="material-icons"></i></a>
+                                        <a class="delete" v-on:click="openConfirmDelete(users.id)" title="Delete" data-toggle="tooltip"><i class="material-icons"></i></a>
                                     </td>
                                     <td>
                                         <a class="addPrivilege" v-on:click="openAddPrivilege(users.id)" title="Add_Privilege" data-toggle="tooltip"><i class="material-icons">person_add</i></a>
-                                        <a class="deletePrivilege" v-on:click="openDeletePrivilege(users.id)" title="Delete_Privilege" data-toggle="tooltip"><i class="material-icons">removeperson</i></a>
+                                        <a class="deletePrivilege" v-on:click="openRemovePrivilege(users.id)" title="Delete_Privilege" data-toggle="tooltip"><i class="material-icons">removeperson</i></a>
                                     </td>
                                 </tr>
                             </tbody>
@@ -102,7 +102,7 @@
                                 </div>
                                 <div class="col m3">
                                     <label>Privilegio</label>
-                                    <select v-model="selectedPrivilegeId" ref="selectPrivilege">
+                                    <select v-model="selectedPrivilegeId" ref="selectPrivilegeId">
                                         <option v-for="privilege in privileges" :key="privilege.id" :value="privilege.id">
                                          {{ privilege.description }}
                                         </option>
@@ -116,34 +116,29 @@
                             </div>
                         </div>
                     </div>
-                    <div class="modal" id="privilege-modal" ref="modalDeletePrivilege">
+                    <div class="modal" id="privilege-modal" ref="modalRemovePrivilege">
                         <div class="modal-content">
                             <div class="row">
-                                <table class="table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th>Privilegio</th>
-                                            <th>Seleccionar</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr v-for="privilege in form.privileges" :key="privilege">
-                                            <td>{{ privilege}}</td>
-                                            <td> 
-                                                <label>
-                                                    <input type="checkbox"/>
-                                                </label>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-
-                                </table>
+                                <div class="row">    
+                                <div class="col m3">
+                                    <label>Usuario</label>
+                                    <input type="text" v-model="form.username" disabled>
+                                </div>
+                                <div class="col m3">
+                                    <label>Privilegio</label>
+                                    <select v-model="selectedPrivilege" ref="Privilege">
+                                        <option v-for="privilege in form.privileges" :key="privilege" :value="privilege">
+                                         {{ privilege }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>                          
                                 <div class="row" >
-                            <div class="col m12">
-                                <button class="btn teal" @click="deletePrivilege()">ELIMINAR</button>
-                                <button class="btn teal" @click="closeModal('modalDeletePrivilege')">CANCELAR</button>
-                            </div>
-                        </div>
+                                    <div class="col m12">
+                                        <button class="btn teal" @click="removePrivilege()">REMOVER</button>
+                                        <button class="btn teal" @click="closeModal('modalRemovePrivilege')">CANCELAR</button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -151,11 +146,11 @@
                         <div class="modal-content">
                             <h4>Confirmación</h4>
                             <p>¿Estás seguro de que deseas eliminar este usuario?</p>
-                        </div>
-                        <div class="row" >
-                            <div class="col m12">
-                                <button class="btn teal" @click="deleteUser()">ELIMINAR</button>
-                                <button class="btn teal" @click="closeModal('modalConfirm')">CANCELAR</button>
+                            <div class="row" >
+                                <div class="col m12">
+                                    <button class="btn teal" @click="deleteUser()">ELIMINAR</button>
+                                    <button class="btn teal" @click="closeModal('modalConfirm')">CANCELAR</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -184,6 +179,7 @@ export default{
             selectedPrivilegeId: null,
             selectedUserId: null,
             userIdToDelete: null,
+            selectedPrivilege:null,
             form:{
                 "id": '',
                 "username": '',
@@ -196,13 +192,13 @@ export default{
         const modalAddElement = this.$refs.modalAdd;
         const modalEditElement = this.$refs.modalEdit;
         const modalPrivilegeElement = this.$refs.modalPrivilege;
-        const modalDeletePrivilegeElement = this.$refs.modalConfirm;
-        const modalConfirmElement = this.$refs.modalDeletePrivilege;
+        const modalRemovePrivilegeElement = this.$refs.modalRemovePrivilege;
+        const modalConfirmElement = this.$refs.modalConfirm;
         
         M.Modal.init(modalAddElement);
         M.Modal.init(modalEditElement);
         M.Modal.init(modalPrivilegeElement);
-        M.Modal.init(modalDeletePrivilegeElement);
+        M.Modal.init(modalRemovePrivilegeElement);
         M.Modal.init(modalConfirmElement);
 
     },
@@ -245,6 +241,9 @@ export default{
             .then(response => {
                 console.log(response);
                 this.form = response.data;
+                this.$nextTick(() => {
+                        M.FormSelect.init(this.$refs.Privilege);
+            });
             })
             .catch(error =>{
                 console.error(error);
@@ -279,7 +278,7 @@ export default{
                 console.error(error);
             })
         },
-        openConfirmDelte(id) {
+        openConfirmDelete(id) {
             this.userIdToDelete = id;
             const modalConfirmElement = this.$refs.modalConfirm;
             const modalInstance = M.Modal.getInstance(modalConfirmElement);
@@ -296,6 +295,9 @@ export default{
                 this.getAllUsers();
                 this.closeModal('modalConfirm');
                 this.mostrarMensaje('El Usuario fue eliminado');
+            })
+            .catch(error=>{
+                console.error(error)
             });
 
         },
@@ -304,7 +306,7 @@ export default{
                 .then(response => {
                     this.privileges = response.data;
                     this.$nextTick(() => {
-                        M.FormSelect.init(this.$refs.selectPrivilege);
+                        M.FormSelect.init(this.$refs.selectPrivilegeId);
                     });
                 })
                 .catch(error => {
@@ -339,17 +341,45 @@ export default{
                 console.error(error);
             });
         },
-        openDeletePrivilege(userId){
-            const modalDeletePrivilegeElement = this.$refs.modalDeletePrivilege;
-            const modalInstance = M.Modal.getInstance(modalDeletePrivilegeElement);
+        openRemovePrivilege(userId){
+            this.selectedUserId = userId;
+            const modalRemovePrivilegeElement = this.$refs.modalRemovePrivilege;
+            const modalInstance = M.Modal.getInstance(modalRemovePrivilegeElement);
             if (modalInstance) {
              modalInstance.open();
             } else {
             console.error('El modal no está disponible.');
             }
-            this.getAllPrivileges();
             this.getIdUser(userId);
-
+            
+        },
+        removePrivilege(){
+            let privilegeId = 0;
+            if(this.selectedPrivilege === 'Administrator'){
+                privilegeId = 2;
+            }
+            if(this.selectedPrivilege === 'ProductAdministrator'){
+                privilegeId = 1;
+            }
+            const config = {
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            data: {
+            userId: this.selectedUserId,
+            privilegeId: privilegeId
+            }
+    };
+            axios.delete('/User/RemovePrivilege', config)
+            .then(response =>{
+                console.log(response);
+                this.getAllUsers();
+                this.closeModal('modalRemovePrivilege');
+                this.mostrarMensaje('El Privilegio fue removido');
+            })
+            .catch(error=>{
+                console.error(error)
+            });
         },
         mostrarMensaje(mensaje) {
             M.toast({html: mensaje});
@@ -446,18 +476,30 @@ table.table .form-control {
 table.table .form-control.error {
     border-color: #f50000;
 }
-#user-modal, #privilege-modal{
-    height: 240px;
+.modal-content{
+    height: 100%;
+}
+#user-modal{
+    height: 200px;
+}
+#privilege-modal{
+    height: 300px;
 }
 #privilege-modal button{
+    margin-top: 20px;
     margin-left:20px;
 }
 #confirm-modal{
-    height: 200px;
+    height: 250px;
     width: 450px;
 }
-#confirm-modal, #user-modal button{
+#confirm-modal button{
+    margin-top: 50px;
     margin-left:20px; 
 }
+#user-modal button{
+    margin-left:20px; 
+}
+
 
 </style>

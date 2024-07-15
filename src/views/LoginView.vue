@@ -5,7 +5,7 @@
       <div id="formContent">
 
         <div class="fadeIn first">
-          <img src="http://danielzawadzki.com/codepen/01/icon.svg" id="icon" alt="User Icon" />
+          <img src="/Logo2.png" id="icon" alt="User Icon" />
         </div>
 
         <form v-on:submit.prevent="login">
@@ -48,7 +48,7 @@ export default {
         "username": this.usuario,
         "password": this.password
       };
-      axios.post('https://localhost:7296/api/User/Login', json)
+      axios.post('/User/Login', json)
         .then(response => {
           if (response.status == 200) {
             console.log(response);

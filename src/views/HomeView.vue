@@ -1,6 +1,7 @@
 <template>
     <div>
         <HeaderView/>
+        <h1>Bienvenido {{ userName }}!</h1>
 
         <div class="home">
           <section class="home-content">
@@ -8,15 +9,7 @@
               <h2>Sobre Nosotros</h2>
               <p>Somos una empresa dedicada a la producción de alta calidad, ofreciendo los mejores productos para nuestros clientes. Nuestro compromiso es garantizar la satisfacción y la excelencia en cada uno de nuestros productos.</p>
             </div>
-            <div class="home-gallery">
-              <h2>Nuestros Productos</h2>
-              <div class="gallery">
-                <div class="gallery-item" v-for="(image, index) in images" :key="index">
-                  <img :src="image.src" :alt="image.alt" />
-                  <p>{{ image.alt }}</p>
-                </div>
-              </div>
-            </div>
+
           </section>
         </div>
     </div>
@@ -32,11 +25,8 @@ export default{
     },
     data(){
         return {
-      images: [
-        { src: 'public/images/cel.jpg', alt: 'Producto 1' },
-        { src: 'public/images/gafasvirtual.jpg', alt: 'Producto 2' },
-        { src: 'public/images/tablet.jpg', alt: 'Producto 3' },        
-      ]
+            userName: '',
+      
     };
     },
     mounted:function(){

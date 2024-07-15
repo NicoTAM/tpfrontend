@@ -58,3 +58,11 @@ export function hasPrivilege(requiredPrivileges) {
 }
 
 
+export function getUserName() {
+    const token = localStorage.getItem('token');
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      return decodedToken.unique_name || '';
+    }
+    return '';
+}
